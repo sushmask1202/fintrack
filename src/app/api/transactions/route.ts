@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserId } from "@/lib/session";
 import { transactionSchema, listQuerySchema } from "@/lib/validation";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const userId = await getUserId();
