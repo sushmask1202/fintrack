@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES } from "@/lib/categories";
 import { formatMoney } from "@/lib/format";
+import CategoryCombobox from "@/components/CategoryCombobox";
 
 type Budget = {
   id: string;
@@ -105,7 +106,7 @@ export default function BudgetsPage() {
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-8">
       <h1 className="text-3xl font-light">Budgets</h1>
 
-      <form onSubmit={onSubmit} className="glass-card space-y-4 p-5 sm:p-6">
+      <form onSubmit={onSubmit} className="glass-card relative z-10 space-y-4 p-5 sm:p-6">
         <h2 className="text-lg font-medium">Set a monthly budget</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -118,9 +119,10 @@ export default function BudgetsPage() {
               onChange={(e) => setCategory(e.target.value)}
               className="auth-input"
             />
-            <datalist id="budget-categories">
-              {CATEGORIES.map((c) => <option key={c} value={c} />)}
-            </datalist>
+                     <div>
+            <label htmlFor="category" className={label}>Category</label>
+            <CategoryCombobox id="category" value={category} onChange={setCategory} options={CATEGORIES} />
+          </div>
           </div>
           <div>
             <label htmlFor="limit" className={label}>Monthly limit</label>

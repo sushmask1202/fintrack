@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import CategoryCombobox from "@/components/CategoryCombobox";
 import { CATEGORIES } from "@/lib/categories";
 import { formatDate, formatMoney } from "@/lib/format";
 
@@ -163,7 +164,7 @@ export default function TransactionsPage() {
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-8">
       <h1 className="text-3xl font-light">Transactions</h1>
 
-      <form onSubmit={onSubmit} className="glass-card space-y-4 p-5 sm:p-6">
+      <form onSubmit={onSubmit} className="glass-card relative z-10 space-y-4 p-5 sm:p-6">
         <h2 className="text-lg font-medium">{editingId ? "Edit transaction" : "Add transaction"}</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <div>
@@ -193,17 +194,12 @@ export default function TransactionsPage() {
           </div>
           <div>
             <label htmlFor="category" className={label}>Category</label>
-            <input
+            <CategoryCombobox
               id="category"
-              list="category-list"
-              required
               value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="auth-input"
+              onChange={(v) => setForm({ ...form, category: v })}
+              options={CATEGORIES}
             />
-            <datalist id="category-list">
-              {CATEGORIES.map((c) => <option key={c} value={c} />)}
-            </datalist>
           </div>
           <div>
             <label htmlFor="date" className={label}>Date</label>
