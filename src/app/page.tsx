@@ -101,10 +101,7 @@ export default async function Home() {
           </div>
 
           <div className="relative h-[380px] sm:h-[460px]" aria-hidden="true">
-            <div className="absolute right-0 top-0 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-sm backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              Private by design
-            </div>
+           
 
             <div
               className={`${glass} absolute left-[4%] top-[12%] w-[62%] p-5`}
@@ -235,10 +232,6 @@ export default async function Home() {
         <Glow background="radial-gradient(60% 55% at 50% 40%, rgba(14,165,233,0.3), transparent 70%)" />
         <div className="relative mx-auto max-w-6xl px-6 py-20 lg:py-28">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-sm backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
-              Private by design
-            </span>
             <h2 className="mt-5 text-4xl font-light sm:text-5xl">Your month in one view</h2>
             <p className="mt-4 text-white/70">
               Totals, spending by category and a six-month trend, updated as you add transactions. Each account sees only its own data.
