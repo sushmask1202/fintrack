@@ -11,11 +11,11 @@ FROM node:24-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Dummy values so the build can run. Real secrets are passed in at runtime only.
-ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db" \
-    AUTH_SECRET="build-time-placeholder" \
-    NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+ENV NEXT_TELEMETRY_DISABLED=1
+# The generated Prisma client is not stored in Git, so create it here.
+# Placeholder values are used for this build only. Real secrets are passed in when the container starts.
+RUN DATABASE_URL="postgresql://user:pass@localhost:5432/db" npx prisma generate
+RUN DATABASE_URL="postgresql://user:pass@localhost:5432/db" AUTH_SECRET="build-time-placeholder" npm run build
 
 # ---- 3. Small runtime image ----
 FROM node:24-slim AS runner
