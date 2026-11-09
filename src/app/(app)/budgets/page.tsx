@@ -110,16 +110,7 @@ export default function BudgetsPage() {
         <h2 className="text-lg font-medium">Set a monthly budget</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="category" className={label}>Category</label>
-            <input
-              id="category"
-              list="budget-categories"
-              required
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="auth-input"
-            />
-                     <div>
+          <div>
             <label htmlFor="category" className={label}>Category</label>
             <CategoryCombobox id="category" value={category} onChange={setCategory} options={CATEGORIES} />
           </div>
