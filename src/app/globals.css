@@ -24,3 +24,105 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+@layer components {
+  /* Headings on the dark pages use the page font (Manrope), not the teal theme's heading font */
+  .dark-theme :is(h1, h2, h3) {
+    font-family: inherit;
+    letter-spacing: -0.02em;
+  }
+
+  .auth-input {
+    width: 100%;
+    border: 1px solid rgb(255 255 255 / 0.16);
+    border-radius: 0.875rem;
+    background: rgb(255 255 255 / 0.06);
+    padding: 0.8rem 1rem;
+    color: #fff;
+    backdrop-filter: blur(8px);
+  }
+  .auth-input::placeholder {
+    color: rgb(255 255 255 / 0.4);
+  }
+  .auth-input:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 2px;
+    border-color: #7dd3fc;
+  }
+  .auth-input:-webkit-autofill {
+    -webkit-text-fill-color: #fff;
+    caret-color: #fff;
+    box-shadow: 0 0 0 1000px #0b1a33 inset;
+  }
+
+  .auth-button {
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-radius: 9999px;
+    background: #fff;
+    color: #02060f;
+    padding: 0.5rem 0.5rem 0.5rem 1.4rem;
+    font-weight: 600;
+    transition: background-color 0.15s;
+  }
+  .auth-button:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.88);
+  }
+  .auth-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+@layer components {
+  .dark-theme {
+    color-scheme: dark;
+  }
+  .dark-theme select option {
+    background: #0b1a33;
+    color: #fff;
+  }
+
+  .glass-card {
+    border: 1px solid rgb(255 255 255 / 0.15);
+    background: rgb(255 255 255 / 0.06);
+    backdrop-filter: blur(16px);
+    border-radius: 1rem;
+    box-shadow: 0 24px 60px -28px rgba(37, 99, 235, 0.55);
+  }
+
+  .dk-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    border-radius: 9999px;
+    background: #fff;
+    color: #02060f;
+    padding: 0.6rem 1.25rem;
+    font-weight: 600;
+    transition: background-color 0.15s;
+  }
+  .dk-btn:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.88);
+  }
+  .dk-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .dk-btn-ghost {
+    border: 1px solid rgb(255 255 255 / 0.2);
+    background: rgb(255 255 255 / 0.08);
+    color: #fff;
+  }
+  .dk-btn-ghost:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.16);
+  }
+  .dk-btn-sm {
+    padding: 0.35rem 0.9rem;
+    font-size: 0.875rem;
+  }
+}

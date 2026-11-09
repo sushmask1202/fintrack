@@ -24,6 +24,8 @@ const emptyForm = () => ({
   date: today(),
 });
 
+const label = "mb-1.5 block text-sm text-white/70";
+
 export default function TransactionsPage() {
   const router = useRouter();
   const [items, setItems] = useState<Tx[]>([]);
@@ -36,6 +38,7 @@ export default function TransactionsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [notice, setNotice] = useState("");
 
   function refresh() {
     setReloadKey((k) => k + 1);
@@ -72,6 +75,12 @@ export default function TransactionsPage() {
     };
   }, [page, filters, reloadKey, router]);
 
+  useEffect(() => {
+    if (!notice) return;
+    const id = setTimeout(() => setNotice(""), 4000);
+    return () => clearTimeout(id);
+  }, [notice]);
+
   function changeFilter(key: keyof typeof filters, value: string) {
     setPage(1);
     setFilters((f) => ({ ...f, [key]: value }));
@@ -80,6 +89,7 @@ export default function TransactionsPage() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrors([]);
+    setNotice("");
     setSaving(true);
 
     const res = await fetch(editingId ? `/api/transactions/${editingId}` : "/api/transactions", {
@@ -97,10 +107,26 @@ export default function TransactionsPage() {
       return;
     }
 
-     setForm(emptyForm());
+    const saved: Tx | null = await res.json().catch(() => null);
+    const wasEditing = editingId !== null;
+
+    setForm(emptyForm());
     setEditingId(null);
     setSaving(false);
-    if (!editingId) setPage(1);
+    setNotice(
+      saved
+        ? `${wasEditing ? "Updated" : "Added"}: ${formatMoney(saved.amount)} in ${saved.category}`
+        : wasEditing
+          ? "Changes saved"
+          : "Transaction added",
+    );
+
+    if (!wasEditing && saved) {
+      setFilters({ type: "", category: "", from: "", to: "" });
+      setPage(1);
+      setItems((prev) => [saved, ...prev].slice(0, PAGE_SIZE));
+      setTotal((t) => t + 1);
+    }
     refresh();
   }
 
@@ -132,105 +158,181 @@ export default function TransactionsPage() {
   }
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const input = "w-full rounded border p-2";
 
   return (
-    <main className="mx-auto max-w-4xl space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Transactions</h1>
+    <main className="mx-auto max-w-5xl space-y-6 px-6 py-8">
+      <h1 className="text-3xl font-light">Transactions</h1>
 
-      <form onSubmit={onSubmit} className="space-y-3 rounded border p-4">
-        <h2 className="font-semibold">{editingId ? "Edit transaction" : "Add transaction"}</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <form onSubmit={onSubmit} className="glass-card space-y-4 p-5 sm:p-6">
+        <h2 className="text-lg font-medium">{editingId ? "Edit transaction" : "Add transaction"}</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <div>
-            <label htmlFor="type" className="block text-sm">Type</label>
-            <select id="type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as "INCOME" | "EXPENSE" })} className={input}>
+            <label htmlFor="type" className={label}>Type</label>
+            <select
+              id="type"
+              value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value as "INCOME" | "EXPENSE" })}
+              className="auth-input"
+            >
               <option value="EXPENSE">Expense</option>
               <option value="INCOME">Income</option>
             </select>
           </div>
           <div>
-            <label htmlFor="amount" className="block text-sm">Amount</label>
-            <input id="amount" type="number" step="0.01" min="0.01" required value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className={input} />
+            <label htmlFor="amount" className={label}>Amount</label>
+            <input
+              id="amount"
+              type="number"
+              step="0.01"
+              min="0.01"
+              required
+              value={form.amount}
+              onChange={(e) => setForm({ ...form, amount: e.target.value })}
+              className="auth-input"
+            />
           </div>
           <div>
-            <label htmlFor="category" className="block text-sm">Category</label>
-            <input id="category" list="category-list" required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={input} />
+            <label htmlFor="category" className={label}>Category</label>
+            <input
+              id="category"
+              list="category-list"
+              required
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              className="auth-input"
+            />
             <datalist id="category-list">
               {CATEGORIES.map((c) => <option key={c} value={c} />)}
             </datalist>
           </div>
           <div>
-            <label htmlFor="date" className="block text-sm">Date</label>
-            <input id="date" type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className={input} />
+            <label htmlFor="date" className={label}>Date</label>
+            <input
+              id="date"
+              type="date"
+              required
+              value={form.date}
+              onChange={(e) => setForm({ ...form, date: e.target.value })}
+              className="auth-input"
+            />
           </div>
           <div>
-            <label htmlFor="note" className="block text-sm">Note</label>
-            <input id="note" maxLength={200} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} className={input} />
+            <label htmlFor="note" className={label}>Note</label>
+            <input
+              id="note"
+              maxLength={200}
+              value={form.note}
+              onChange={(e) => setForm({ ...form, note: e.target.value })}
+              className="auth-input"
+            />
           </div>
         </div>
 
         {errors.length > 0 && (
-          <ul className="text-sm text-red-600" role="alert">
+          <ul className="space-y-1 text-sm text-rose-300" role="alert">
             {errors.map((m, i) => <li key={i}>{m}</li>)}
           </ul>
         )}
 
-        <div className="flex gap-2">
-          <button disabled={saving} className="rounded bg-black px-4 py-2 text-white disabled:opacity-50">
+        <div className="flex gap-3">
+          <button disabled={saving} className="dk-btn">
             {saving ? "Saving..." : editingId ? "Save changes" : "Add"}
           </button>
           {editingId && (
-            <button type="button" onClick={cancelEdit} className="rounded border px-4 py-2">Cancel</button>
+            <button type="button" onClick={cancelEdit} className="dk-btn dk-btn-ghost">Cancel</button>
           )}
         </div>
       </form>
 
+      {notice && (
+        <p
+          className="rounded-xl border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-sm text-emerald-200"
+          role="status"
+        >
+          {notice}
+        </p>
+      )}
+
       <section className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <select aria-label="Filter by type" value={filters.type} onChange={(e) => changeFilter("type", e.target.value)} className={input}>
+          <select
+            aria-label="Filter by type"
+            value={filters.type}
+            onChange={(e) => changeFilter("type", e.target.value)}
+            className="auth-input"
+          >
             <option value="">All types</option>
             <option value="EXPENSE">Expense</option>
             <option value="INCOME">Income</option>
           </select>
-          <select aria-label="Filter by category" value={filters.category} onChange={(e) => changeFilter("category", e.target.value)} className={input}>
+          <select
+            aria-label="Filter by category"
+            value={filters.category}
+            onChange={(e) => changeFilter("category", e.target.value)}
+            className="auth-input"
+          >
             <option value="">All categories</option>
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <input aria-label="From date" type="date" value={filters.from} onChange={(e) => changeFilter("from", e.target.value)} className={input} />
-          <input aria-label="To date" type="date" value={filters.to} onChange={(e) => changeFilter("to", e.target.value)} className={input} />
+          <input
+            aria-label="From date"
+            type="date"
+            value={filters.from}
+            onChange={(e) => changeFilter("from", e.target.value)}
+            className="auth-input"
+          />
+          <input
+            aria-label="To date"
+            type="date"
+            value={filters.to}
+            onChange={(e) => changeFilter("to", e.target.value)}
+            className="auth-input"
+          />
         </div>
 
-        <div className="overflow-x-auto rounded border">
+        <div className="glass-card overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="border-b bg-gray-50">
+            <thead className="border-b border-white/10 text-white/60">
               <tr>
-                <th className="p-2">Date</th>
-                <th className="p-2">Type</th>
-                <th className="p-2">Category</th>
-                <th className="p-2">Note</th>
-                <th className="p-2 text-right">Amount</th>
-                <th className="p-2"></th>
+                <th className="p-3 font-medium">Date</th>
+                <th className="p-3 font-medium">Type</th>
+                <th className="p-3 font-medium">Category</th>
+                <th className="p-3 font-medium">Note</th>
+                <th className="p-3 text-right font-medium">Amount</th>
+                <th className="p-3"></th>
               </tr>
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={5} className="p-4 text-center">Loading...</td></tr>
+                <tr><td colSpan={6} className="p-6 text-center text-white/60">Loading...</td></tr>
               )}
               {!loading && items.length === 0 && (
-                <tr><td colSpan={5} className="p-4 text-center">No transactions yet.</td></tr>
+                <tr><td colSpan={6} className="p-6 text-center text-white/60">No transactions yet.</td></tr>
               )}
               {!loading && items.map((t) => (
-                <tr key={t.id} className="border-b last:border-0">
-                  <td className="p-2 whitespace-nowrap">{formatDate(t.date)}</td>
-                  <td className="p-2">{t.type === "INCOME" ? "Income" : "Expense"}</td>
-                  <td className="p-2">{t.category}</td>
-                  <td className="p-2">{t.note}</td>
-                  <td className={`p-2 text-right whitespace-nowrap ${t.type === "INCOME" ? "text-green-700" : "text-red-700"}`}>
+                <tr key={t.id} className="border-b border-white/10 last:border-0 hover:bg-white/5">
+                  <td className="whitespace-nowrap p-3 text-white/80">{formatDate(t.date)}</td>
+                  <td className="p-3">
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-xs ${
+                        t.type === "INCOME" ? "bg-emerald-400/15 text-emerald-300" : "bg-rose-400/15 text-rose-300"
+                      }`}
+                    >
+                      {t.type === "INCOME" ? "Income" : "Expense"}
+                    </span>
+                  </td>
+                  <td className="p-3">{t.category}</td>
+                  <td className="p-3 text-white/65">{t.note}</td>
+                  <td
+                    className={`whitespace-nowrap p-3 text-right tabular-nums ${
+                      t.type === "INCOME" ? "text-emerald-300" : "text-rose-300"
+                    }`}
+                  >
                     {t.type === "INCOME" ? "+" : "-"}{formatMoney(t.amount)}
                   </td>
-                  <td className="p-2 text-right whitespace-nowrap">
-                    <button onClick={() => startEdit(t)} className="mr-2 underline">Edit</button>
-                    <button onClick={() => remove(t)} className="underline">Delete</button>
+                  <td className="whitespace-nowrap p-3 text-right">
+                    <button onClick={() => startEdit(t)} className="mr-3 text-sky-300 hover:underline">Edit</button>
+                    <button onClick={() => remove(t)} className="text-rose-300 hover:underline">Delete</button>
                   </td>
                 </tr>
               ))}
@@ -238,12 +340,16 @@ export default function TransactionsPage() {
           </table>
         </div>
 
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-sm text-white/75">
           <span>{total} transaction{total === 1 ? "" : "s"}</span>
-          <div className="flex items-center gap-2">
-            <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="rounded border px-3 py-1 disabled:opacity-40">Previous</button>
+          <div className="flex items-center gap-3">
+            <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="dk-btn dk-btn-ghost dk-btn-sm">
+              Previous
+            </button>
             <span>Page {page} of {totalPages}</span>
-            <button disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="rounded border px-3 py-1 disabled:opacity-40">Next</button>
+            <button disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="dk-btn dk-btn-ghost dk-btn-sm">
+              Next
+            </button>
           </div>
         </div>
       </section>

@@ -29,3 +29,5 @@ export const listQuerySchema = z.object({
   from: z.coerce.date().optional(),
   to: z.coerce.date().optional(),
 });
+export const budgetSchema = z.object({ category: z.string().trim().min(1).max(50), monthlyLimit: z.coerce.number().positive().max(1_000_000_000) });
+export const monthQuerySchema = z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() });

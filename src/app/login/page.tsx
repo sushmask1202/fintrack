@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import AuthShell, { ArrowDot } from "@/components/AuthShell";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,25 +31,33 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto max-w-sm p-6">
-      <h1 className="mb-4 text-2xl font-bold">Log in</h1>
-      <form onSubmit={onSubmit} className="space-y-3">
+    <AuthShell
+      title="Welcome back"
+      subtitle="Log in to see how this month is going."
+      footer={
+        <>
+          New here?{" "}
+          <Link href="/signup" className="font-medium text-white underline focus-visible:outline-white">
+            Create an account
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm">Email</label>
-          <input id="email" name="email" type="email" required className="w-full rounded border p-2" />
+          <label htmlFor="email" className="mb-1.5 block text-sm text-white/80">Email</label>
+          <input id="email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" className="auth-input" />
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm">Password</label>
-          <input id="password" name="password" type="password" required className="w-full rounded border p-2" />
+          <label htmlFor="password" className="mb-1.5 block text-sm text-white/80">Password</label>
+          <input id="password" name="password" type="password" autoComplete="current-password" required className="auth-input" />
         </div>
-        {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
-        <button disabled={loading} className="w-full rounded bg-black p-2 text-white disabled:opacity-50">
+        {error && <p className="text-sm text-rose-300" role="alert">{error}</p>}
+        <button disabled={loading} className="auth-button">
           {loading ? "Logging in..." : "Log in"}
+          <ArrowDot />
         </button>
       </form>
-      <p className="mt-4 text-sm">
-        No account? <Link href="/signup" className="underline">Sign up</Link>
-      </p>
-    </main>
+    </AuthShell>
   );
 }
