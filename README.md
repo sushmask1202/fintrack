@@ -6,7 +6,15 @@ A full-stack personal finance tracker. Record income and expenses, set monthly b
 
 **Live demo:** https://fintrack-pearl-delta.vercel.app
 
-![Dashboard](docs/dashboard.png)
+## Screenshots
+
+![Landing page](docs/landing.png)
+
+| Dashboard | Transactions |
+|---|---|
+| ![Dashboard](docs/dashboard.png) | ![Transactions](docs/transactions.png) |
+
+![Budgets](docs/budgets.png)
 
 ## Features
 
